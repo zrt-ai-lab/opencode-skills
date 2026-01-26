@@ -1,0 +1,73 @@
+# 默认配置 - 所有项目继承此配置
+# 项目配置只需写差异部分即可
+
+# 视频基础配置
+resolution: [1080, 1920]  # 默认竖版
+fps: 30
+
+# 语音默认配置（项目可覆盖）
+voice:
+  name: "zh-CN-YunxiNeural"  # 默认男声
+  rate: "+0%"
+  pitch: "+0Hz"
+
+# 可选音色参考:
+# 男声: zh-CN-YunxiNeural, zh-CN-YunyangNeural, zh-CN-YunjianNeural
+# 女声: zh-CN-XiaoxiaoNeural, zh-CN-XiaoyiNeural, zh-CN-XiaohanNeural
+# 方言: zh-CN-liaoning-XiaobeiNeural, zh-CN-shaanxi-XiaoniNeural
+
+# 样式默认配置
+style:
+  font: "PingFang SC"
+  font_size: 42
+  font_color: "#FFFFFF"
+  stroke_color: "#000000"
+  stroke_width: 2
+  subtitle_position: "bottom"  # bottom/top/center
+  subtitle_bg: true
+  subtitle_bg_color: "#000000"
+  subtitle_bg_opacity: 0.7
+  highlight_color: "#FFD700"
+
+# 动画默认配置
+animation:
+  ken_burns: true
+  default_animation: "zoom_in"
+  animation_intensity: 0.15  # 动画幅度 0.1~0.3
+
+# 可选动画效果:
+# 缩放: zoom_in, zoom_out
+# 平移: pan_left, pan_right, pan_up, pan_down
+# 组合: zoom_pan_left, zoom_pan_right, zoom_pan_up, zoom_pan_down
+
+# 转场默认配置
+transition:
+  type: "fade"
+  duration: 0.5
+
+# 可选转场效果:
+# 基础: fade, dissolve
+# 滑动: slide_left, slide_right, slide_up, slide_down
+# 特效: zoom_blur, wipe_left, wipe_right
+
+# 片头默认配置
+intro:
+  enabled: true
+  duration: 3
+  title_animation: "scale_in"  # scale_in/fade_in/typewriter
+  background_color: "#0d1117"
+  title_color: "#FFFFFF"
+
+# 片尾默认配置
+outro:
+  enabled: true
+  duration: 4
+  logo: "assets/logo.jpg"
+  logo_animation: "scale_in"
+  background_color: "#0d1117"
+  text: "点点关注，学习更多的AI知识"
+  text_color: "#CCCCCC"
+
+# 背景音乐（项目可配置）
+# background_music: "path/to/music.mp3"
+# music_volume: 0.1  # 0.0~1.0

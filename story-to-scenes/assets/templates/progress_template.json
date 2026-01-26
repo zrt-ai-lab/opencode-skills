@@ -1,0 +1,38 @@
+{
+  "project_name": "{{PROJECT_NAME}}",
+  "created_at": "{{DATE}}",
+  "updated_at": "{{DATE}}",
+  "config": {
+    "style_preset": "{{STYLE_PRESET}}",
+    "aspect_ratio": "{{ASPECT_RATIO}}",
+    "source_file": "{{SOURCE_FILE}}"
+  },
+  "status": "in_progress",
+  "phase": "init",
+  "characters": {
+    "total": 0,
+    "completed": 0,
+    "locked": [],
+    "pending": [],
+    "items": []
+  },
+  "locations": {
+    "total": 0,
+    "completed": 0,
+    "locked": [],
+    "items": []
+  },
+  "scenes": {
+    "total": 0,
+    "completed": 0,
+    "current": 0,
+    "failed": [],
+    "items": []
+  },
+  "style": {
+    "locked": false,
+    "keywords": "",
+    "reference_image": ""
+  },
+  "logs": []
+}

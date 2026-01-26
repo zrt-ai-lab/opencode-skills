@@ -1,0 +1,21 @@
+{
+  "ssh": {
+    "host": "your-ssh-host.example.com",
+    "port": 22,
+    "username": "your-username",
+    "password": "your-password",
+    "key_file": null
+  },
+  "database": {
+    "type": "mysql",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "your_database",
+    "username": "your_db_user",
+    "password": "your_db_password"
+  },
+  "query": {
+    "max_rows": 100,
+    "timeout": 30
+  }
+}

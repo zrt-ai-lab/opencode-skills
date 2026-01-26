@@ -1,0 +1,14 @@
+# UniAgent 依赖
+
+# 核心
+pyyaml>=6.0
+aiohttp>=3.8.0
+
+# ANP 协议
+anp>=0.1.0
+
+# MCP 协议 (可选)
+# mcp>=0.1.0
+
+# A2A 协议 (待实现)
+# google-a2a>=0.1.0

@@ -1,0 +1,12 @@
+{
+  "date": "YYYY-MM-DD",
+  "keywords_ref": "references/keywords.md",
+  "sources": [
+    {"name": "AIBase日报", "url": "https://news.aibase.com/zh/daily", "status": "pending", "priority": "high"},
+    {"name": "IT之家智能时代", "url": "https://next.ithome.com/", "status": "pending"},
+    {"name": "36氪", "url": "https://36kr.com/information/AI/", "status": "pending"},
+    {"name": "机器之心", "url": "https://www.jiqizhixin.com/articles", "status": "pending"},
+    {"name": "量子位", "url": "https://www.qbitai.com", "status": "pending"}
+  ],
+  "is_complete": false
+}

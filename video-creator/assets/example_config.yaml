@@ -1,0 +1,73 @@
+# 视频创作器 - 示例配置
+# 使用方法: python scripts/video_generator.py assets/example_config.yaml
+
+# 视频基础配置
+title: "AI 前沿速递"
+output: "output/ai_news.mp4"
+resolution: [1920, 1080]  # 横版 16:9
+
+# 语音配置
+voice:
+  name: "zh-CN-YunxiNeural"  # 男声新闻风
+  rate: "+0%"
+  pitch: "+0Hz"
+
+# 样式配置
+style:
+  font: "PingFang SC"
+  font_size: 48
+  font_color: "#FFFFFF"
+  stroke_color: "#000000"
+  stroke_width: 2
+  subtitle_position: "bottom"
+  subtitle_bg: true
+  subtitle_bg_color: "#000000"
+  subtitle_bg_opacity: 0.6
+
+# 动画配置
+animation:
+  ken_burns: true
+  default_animation: "zoom_in"
+  animation_intensity: 0.1
+
+# 转场配置
+transition:
+  type: "fade"
+  duration: 0.5
+
+# 片头配置
+intro:
+  enabled: true
+  duration: 3
+  title_animation: "fade_up"
+  background_color: "#1a1a2e"
+  title_color: "#FFFFFF"
+
+# 片尾配置
+outro:
+  enabled: true
+  duration: 3
+  logo: "assets/logo.jpg"  # 微信公众号 Logo
+  logo_animation: "bounce_in"
+  background_color: "#1a1a2e"
+  text: "点点关注，学习更多的AI知识"
+  text_color: "#CCCCCC"
+
+# 场景列表
+scenes:
+  - image: "assets/scene_01.png"
+    text: "今天我们来聊聊 AI Agent 的最新进展"
+    animation: "zoom_in"
+
+  - image: "assets/scene_02.png"
+    text: "首先是 OpenAI 发布的 Operator"
+    animation: "pan_right"
+    highlight: ["Operator"]
+
+  - image: "assets/scene_03.png"
+    text: "它能自动操作浏览器完成复杂任务"
+    animation: "zoom_out"
+
+  - image: "assets/scene_04.png"
+    text: "这意味着 AI 正在从对话走向行动"
+    animation: "pan_left"

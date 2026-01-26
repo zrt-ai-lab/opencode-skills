@@ -1,0 +1,42 @@
+{
+  "image_api": {
+    "key": "your_image_api_key",
+    "base_url": "https://api.openai.com/v1",
+    "model": "dall-e-3"
+  },
+  "vision_api": {
+    "key": "your_vision_api_key",
+    "base_url": "https://api.openai.com/v1",
+    "model": "gpt-4o"
+  },
+  "defaults": {
+    "text_to_image": {
+      "size": "1792x1024",
+      "response_format": "b64_json"
+    },
+    "image_to_image": {
+      "size": "1792x1024",
+      "response_format": "b64_json"
+    },
+    "image_to_text": {
+      "max_tokens": 2000,
+      "temperature": 0.7,
+      "mode": "describe"
+    }
+  },
+  "limits": {
+    "max_file_size_mb": 4,
+    "supported_formats": ["png", "jpg", "jpeg", "webp", "gif"],
+    "max_prompt_length": 1000,
+    "timeout_seconds": {
+      "text_to_image": 180,
+      "image_to_image": 180,
+      "image_to_text": 120
+    }
+  },
+  "retry": {
+    "max_attempts": 3,
+    "backoff_multiplier": 2,
+    "initial_delay_seconds": 1
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-01-25",
+  "keywords_ref": "references/keywords.md",
+  "sources": [
+    {
+      "name": "AIBase日报",
+      "url": "https://news.aibase.com/zh/daily",
+      "status": "failed",
+      "priority": "high",
+      "note": "1月25日日报尚未发布"
+    },
+    {
+      "name": "IT之家智能时代",
+      "url": "https://next.ithome.com/",
+      "status": "done",
+      "news_count": 10
+    },
+    {
+      "name": "36氪",
+      "url": "https://36kr.com/information/AI/",
+      "status": "done",
+      "news_count": 0,
+      "note": "列表页无1月25日新闻"
+    },
+    {
+      "name": "机器之心",
+      "url": "https://www.jiqizhixin.com/articles",
+      "status": "done",
+      "news_count": 0
+    },
+    {
+      "name": "量子位",
+      "url": "https://www.qbitai.com",
+      "status": "done",
+      "news_count": 3
+    }
+  ],
+  "is_complete": true
+}

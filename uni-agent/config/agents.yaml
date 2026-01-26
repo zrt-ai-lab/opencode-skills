@@ -1,0 +1,121 @@
+# UniAgent 配置文件
+# Agent 注册表
+
+agents:
+  # ==================== ANP Agents ====================
+  - id: amap
+    protocol: anp
+    name: 高德地图
+    ad_url: https://agent-connect.ai/mcp/agents/amap/ad.json
+    description: 地点搜索、路线规划、天气查询、周边搜索
+
+  - id: kuaidi
+    protocol: anp
+    name: 快递查询
+    ad_url: https://agent-connect.ai/mcp/agents/kuaidi/ad.json
+    description: 快递单号追踪
+
+  - id: hotel
+    protocol: anp
+    name: 酒店预订
+    ad_url: https://agent-connect.ai/agents/hotel-assistant/ad.json
+    description: 搜索酒店、查询房价
+
+  - id: juhe
+    protocol: anp
+    name: 聚合查询
+    ad_url: https://agent-connect.ai/mcp/agents/juhe/ad.json
+    description: 多种生活服务查询
+
+  - id: navigation
+    protocol: anp
+    name: Agent导航
+    ad_url: https://agent-search.ai/agents/navigation/ad.json
+    description: 发现更多 ANP Agent
+
+  # ==================== MCP Servers ====================
+  # - id: filesystem
+  #   protocol: mcp
+  #   name: 文件系统
+  #   command: npx
+  #   args: ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+  #   description: 文件读写操作
+
+  # - id: github
+  #   protocol: mcp
+  #   name: GitHub
+  #   command: npx
+  #   args: ["-y", "@modelcontextprotocol/server-github"]
+  #   env:
+  #     GITHUB_TOKEN: "${GITHUB_TOKEN}"
+  #   description: GitHub 仓库操作
+
+  # - id: sqlite
+  #   protocol: mcp
+  #   name: SQLite
+  #   command: npx
+  #   args: ["-y", "@modelcontextprotocol/server-sqlite", "/tmp/test.db"]
+  #   description: SQLite 数据库操作
+
+  # ==================== A2A Agents ====================
+  # Google Agent-to-Agent 协议
+  # - id: gemini_assistant
+  #   protocol: a2a
+  #   name: Gemini Assistant
+  #   endpoint: https://example.com/.well-known/agent.json
+  #   auth:
+  #     type: api_key
+  #     api_key: "${A2A_API_KEY}"
+
+  # - id: vertexai_agent
+  #   protocol: a2a
+  #   name: VertexAI Agent
+  #   endpoint: https://your-project.cloudfunctions.net/agent
+  #   auth:
+  #     type: oauth2
+  #     token_url: https://oauth2.googleapis.com/token
+  #     client_id: "${GOOGLE_CLIENT_ID}"
+  #     client_secret: "${GOOGLE_CLIENT_SECRET}"
+
+  # ==================== AITP Agents ====================
+  # NEAR Agent Interaction & Transaction Protocol
+  # - id: near_shop
+  #   protocol: aitp
+  #   name: NEAR Shop
+  #   endpoint: https://example.near.ai/api
+  #   wallet:
+  #     type: near
+  #     account_id: "${NEAR_ACCOUNT_ID}"
+
+  # - id: payment_agent
+  #   protocol: aitp
+  #   name: Payment Agent
+  #   endpoint: https://pay.example.com/aitp
+  #   description: 支持 NEAR/ETH 支付的 Agent
+
+  # ==================== Agent Protocol ====================
+  # AI Engineer Foundation REST API 标准
+  # - id: autogpt
+  #   protocol: agent_protocol
+  #   name: AutoGPT
+  #   endpoint: http://localhost:8000
+  #   api_key: "${AUTOGPT_API_KEY}"
+
+  # - id: smol_developer
+  #   protocol: ap
+  #   name: Smol Developer
+  #   endpoint: http://localhost:8080
+
+  # ==================== LMOS Agents ====================
+  # Eclipse 企业级 Agent 平台
+  # - id: customer_service
+  #   protocol: lmos
+  #   name: 客服 Agent
+  #   registry_url: http://lmos-registry.internal:8080
+  #   group: customer-agents
+
+  # - id: sales_agent
+  #   protocol: lmos
+  #   name: 销售 Agent
+  #   endpoint: http://sales-agent.internal:8080
+  #   description: 处理销售咨询
