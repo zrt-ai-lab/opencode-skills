@@ -130,10 +130,10 @@ class ProtocolAdapter(ABC):
 |------|------|--------|------|
 | ANP | ✅ 已实现 | `adapters/anp.py` | 去中心化身份 + Agent 网络 |
 | MCP | ✅ 已实现 | `adapters/mcp.py` | LLM 工具调用 |
-| A2A | 🚧 开发中 | `adapters/a2a.py` | Agent 间协作 |
-| AITP | 📋 计划中 | `adapters/aitp.py` | 交互 + 交易 |
-| Agent Protocol | 📋 计划中 | `adapters/agent_protocol.py` | REST API |
-| LMOS | 📋 计划中 | `adapters/lmos.py` | 企业级平台 |
+| A2A | ✅ 已实现 | `adapters/a2a.py` | Agent 间协作 |
+| AITP | ✅ 已实现 | `adapters/aitp.py` | 交互 + 交易 |
+| Agent Protocol | ✅ 已实现 | `adapters/agent_protocol.py` | REST API |
+| LMOS | ✅ 已实现 | `adapters/lmos.py` | 企业级平台 |
 
 ## 使用方式
 
