@@ -459,7 +459,19 @@ def main():
                     print(f"图片不存在: {img}")
                     sys.exit(1)
                 images.append(img)
-                durations.append(img_cfg['duration'])
+                d = img_cfg.get('duration')
+                if d is None:
+                    print(f"\n⛔ {img_cfg['file']} 缺少 duration！每张图必须填写精确的秒数。")
+                    sys.exit(1)
+                try:
+                    d = float(d)
+                except (ValueError, TypeError):
+                    print(f"\n⛔ {img_cfg['file']} 的 duration='{d}' 不是数字！必须填写精确的秒数。")
+                    sys.exit(1)
+                if d <= 0:
+                    print(f"\n⛔ {img_cfg['file']} 的 duration={d}，必须大于0！")
+                    sys.exit(1)
+                durations.append(d)
         else:
             img = work_dir / scene['image']
             if not img.exists():
@@ -470,6 +482,17 @@ def main():
     
     total_audio_duration = sum(get_duration(af) for af in audio_files)
     total_image_duration = sum(durations)
+    diff = abs(total_image_duration - total_audio_duration)
+    
+    # 硬校验：图片总时长和音频总时长差超过2秒直接报错退出
+    if diff > 2.0:
+        print(f"\n❌ 音画时长严重不匹配！")
+        print(f"  图片总时长: {total_image_duration:.1f}s")
+        print(f"  音频总时长: {total_audio_duration:.1f}s")
+        print(f"  差值: {diff:.1f}s（超过2秒阈值）")
+        print(f"\n⛔ 请根据 narration.json 时间戳重新计算每张图的 duration！")
+        print(f"  禁止凭感觉手动填 duration，必须按语义分配！")
+        sys.exit(1)
     
     if total_image_duration < total_audio_duration:
         gap = total_audio_duration - total_image_duration + 0.5
