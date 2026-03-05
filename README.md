@@ -1,6 +1,6 @@
 # OpenCode Skills
 
-OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。19 个 Skill，覆盖内容创作、自动发布、视频剪辑、开发工具、Agent 调度五大方向。
+OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skill，覆盖内容创作、自动发布、视频剪辑、开发工具、Agent 调度五大方向。
 
 ## 技能总览
 
@@ -43,6 +43,7 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。19 个 Skil
 | [log-analyzer](./log-analyzer/) | 日志智能分析 | 自动识别日志类型（Java/MySQL/Nginx/Trace/告警），实体提取，根因定位。支持100M+大文件 | 无 |
 | [mcp-builder](./mcp-builder/) | MCP Server开发 | 快速构建Model Context Protocol服务，支持Python(FastMCP)和Node/TypeScript | 无 |
 | [skill-creator](./skill-creator/) | Skill开发指南 | 标准化Skill开发模板、目录规范、最佳实践 | 无 |
+| [build-project-docs](./build-project-docs/) | 项目文档体系构建 | 分层式LLM友好文档生成。已有项目8阶段（探查→分类→索引→基础模块→业务模块→配置→变更日志→验证），新项目5阶段（PRD解析→架构→拆解→开发指南→模块文档） | 需要 git |
 
 ### 🤖 Agent 调度
 
@@ -66,7 +67,7 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。19 个 Skil
 | **auto-redbook** | 环境变量 | `XHS_COOKIE`，从浏览器登录小红书后获取 |
 | **auto-weixin-video** | 运行时生成 | 执行 `scripts/get_cookie.py` 微信扫码登录，自动保存Cookie |
 
-其余12个skill无需配置，开箱即用。
+其余13个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
 
 ---
 
