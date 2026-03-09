@@ -1,0 +1,44 @@
+{
+  "palettes": {
+    "tech-blue": {
+      "name": "科技蓝",
+      "primary": "#4A90D9",
+      "secondary": "#81C784",
+      "accent": "#FFB74D",
+      "background": "#F5F7FA",
+      "text": "#333333"
+    },
+    "dark-purple": {
+      "name": "暗紫科技",
+      "primary": "#B165FB",
+      "secondary": "#40695B",
+      "accent": "#00B4D8",
+      "background": "#181B24",
+      "text": "#FFFFFF"
+    },
+    "warm-earth": {
+      "name": "暖色大地",
+      "primary": "#D4845A",
+      "secondary": "#8B7355",
+      "accent": "#E8C170",
+      "background": "#FFF8F0",
+      "text": "#4A3728"
+    },
+    "minimal-gray": {
+      "name": "极简灰",
+      "primary": "#333333",
+      "secondary": "#666666",
+      "accent": "#0066FF",
+      "background": "#FFFFFF",
+      "text": "#1A1A1A"
+    },
+    "neon-cyber": {
+      "name": "霓虹赛博",
+      "primary": "#00FFE0",
+      "secondary": "#FF00FF",
+      "accent": "#FFE500",
+      "background": "#0A0A1A",
+      "text": "#FFFFFF"
+    }
+  }
+}

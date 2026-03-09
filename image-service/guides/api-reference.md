@@ -14,8 +14,8 @@
 
 | 配置项 | 值 |
 |-------|-----|
-| Base URL | `${IMAGE_API_BASE_URL}` |
-| Model | `dall-e-3` |
+| Base URL | 配置文件中的 `image_api.base_url` |
+| Model | 配置文件中的 `image_api.model` |
 | 认证方式 | Bearer Token |
 
 ### 1.2 文生图接口
@@ -47,7 +47,7 @@ POST /images/generations
 
 | 参数 | 类型 | 必填 | 说明 |
 |-----|------|-----|------|
-| model | string | 是 | 固定使用 `dall-e-3` |
+| model | string | 是 | 配置文件中的 `image_api.model` |
 | prompt | string | 是 | 中文图像生成提示词 |
 | size | string | 否 | 图片尺寸，默认 `1792x1024` |
 | response_format | string | 否 | 响应格式，推荐 `b64_json` |
@@ -86,7 +86,7 @@ POST /images/edits
 
 | 参数 | 类型 | 必填 | 说明 |
 |-----|------|-----|------|
-| model | string | 是 | 固定使用 `dall-e-3` |
+| model | string | 是 | 配置文件中的 `image_api.model` |
 | prompt | string | 是 | 中文图片编辑指令 |
 | image | string | 是 | Base64 编码的参考图片（含 data URL 前缀） |
 | size | string | 否 | 输出尺寸 |
@@ -111,8 +111,8 @@ POST /images/edits
 
 | 配置项 | 值 |
 |-------|-----|
-| Base URL | `${IMAGE_API_BASE_URL}` |
-| Model | `qwen2.5-vl-72b-instruct` |
+| Base URL | 配置文件中的 `vision_api.base_url` |
+| Model | 配置文件中的 `vision_api.model` |
 | 认证方式 | Bearer Token |
 
 ### 2.2 图生文接口

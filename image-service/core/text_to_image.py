@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 文生图脚本 (Text-to-Image)
-使用 Images API 根据中文文本描述生成图片
+根据中文文本描述生成图片（OpenAI Images API 兼容）
 支持参考图风格生成
 
 Author: 翟星人

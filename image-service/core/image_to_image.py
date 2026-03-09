@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 图生图脚本 (Image-to-Image)
-使用 Images API 基于参考图片和中文指令进行图片编辑
+基于参考图片和中文指令进行图片编辑（OpenAI Images API 兼容）
 
 Author: 翟星人
 """
