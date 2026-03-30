@@ -1,6 +1,6 @@
 # OpenCode Skills
 
-OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skill，覆盖内容创作、自动发布、视频剪辑、开发工具、Agent 调度五大方向。
+OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。26 个 Skill，覆盖内容创作、自动发布、视频剪辑、飞书集成、开发工具、Agent 调度六大方向。
 
 ## 技能总览
 
@@ -10,6 +10,8 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skil
 |-------|------|------|------|
 | [image-service](./image-service/) | 图像生成/编辑/分析 | 8大场景路由（信息图/封面/长图/幻灯片/漫画/文章插图/小红书/营销），4500+种组合。核心引擎：文生图、图生图、图生文、长图拼接 | ⚙️ 图像API + 视觉API |
 | [video-creator](./video-creator/) | 视频生成 | 图片+音频→视频全流程。支持TTS配音、淡入淡出转场、字幕烧录、片尾拼接、BGM混音。内含生图→配音→合成完整链路 | ⚙️ TTS API |
+| [video-copywriting](./video-copywriting/) | 短视频文案创作 | 8大爆款公式+黄金结构+三关校验（格式/结构/逻辑）。基于头部账号调研，含钩子模板、金句压缩、完整案例 | 无 |
+| [video-stickfigure](./video-stickfigure/) | 火柴人素材生图 | AI生成粉笔画风格火柴人，HSV统一背景色。10种情绪动作+氛围元素库，深墨绿/纯黑两种风格方案 | 无 |
 | [story-to-scenes](./story-to-scenes/) | 故事拆镜生图 | 长文本智能拆分场景，批量生成风格统一、角色一致的配图。支持故事/课程/连环画/绘本 | 无 |
 | [auto-redbook](./auto-redbook/) | 小红书笔记创作 | Markdown→精美图片卡片渲染（8套主题），自动排版封面+正文卡片，支持一键发布 | 🔑 小红书Cookie |
 | [searchnews](./searchnews/) | AI新闻搜索整理 | Ralph Loop地毯式搜索，10大分类100+标签筛选，日报生成+视频制作全流程 | 无 |
@@ -33,6 +35,15 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skil
 | [videocut-clip](./videocut-clip/) | 视频裁剪 | 按确认的删除任务执行FFmpeg精确裁剪，循环直到零口误 | 无 |
 | [videocut-subtitle](./videocut-subtitle/) | 字幕生成 | 转录→词典纠错→人工审核→字幕烧录 | 无 |
 | [videocut-self-update](./videocut-self-update/) | 规则自更新 | 记录用户反馈，自动更新方法论和识别规则 | 无 |
+| [video-subtitle-remover](./video-subtitle-remover/) | 硬字幕/水印去除 | 基于STTN模型自动去除视频硬字幕和水印，支持Apple Silicon MPS加速，首次运行自动配置环境 | 无 |
+
+### 📨 飞书集成
+
+| Skill | 用途 | 说明 | 配置 |
+|-------|------|------|------|
+| [feishu-doc](./feishu-doc/) | 飞书文档读写 | 支持Wiki/Docs/Sheets/Bitable四种文档类型的读取、创建、覆写、追加。自动解析Wiki URL，支持分段写入长文档 | 🔑 飞书应用凭据 |
+| [feishu-chat-history](./feishu-chat-history/) | 群聊记录获取 | 拉取飞书群消息并生成讨论摘要，解析text/interactive/image等消息类型，支持分页加载 | 🔑 飞书应用凭据 |
+| [feishu-cron-reminder](./feishu-cron-reminder/) | 定时飞书提醒 | 通过OpenClaw cron创建周期性提醒任务，经main session可靠投递到飞书会话 | 🔑 飞书应用凭据 |
 
 ### 🔧 开发工具
 
@@ -66,8 +77,11 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skil
 | **auto-douyin** | 运行时生成 | 执行 `scripts/get_cookie.py` 扫码登录，自动保存Cookie |
 | **auto-redbook** | 环境变量 | `XHS_COOKIE`，从浏览器登录小红书后获取 |
 | **auto-weixin-video** | 运行时生成 | 执行 `scripts/get_cookie.py` 微信扫码登录，自动保存Cookie |
+| **feishu-doc** | `config.json` 或环境变量 | 飞书应用凭据（`app_id` / `app_secret`） |
+| **feishu-chat-history** | 应用配置 | 飞书应用凭据（`appId` / `appSecret`） |
+| **feishu-cron-reminder** | 应用配置 | 飞书应用凭据（同上） + OpenClaw cron |
 
-其余13个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
+其余16个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
 
 ---
 
@@ -75,11 +89,14 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。20 个 Skil
 
 | 依赖 | 涉及Skill | 安装方式 |
 |------|----------|---------|
-| **Python 3.10+** | image-service, video-creator, csv-data-summarizer, auto-*, smart-query, uni-agent | 系统自带或 `brew install python` |
-| **ffmpeg** | video-creator, videocut-* | `brew install ffmpeg` |
+| **Python 3.10+** | image-service, video-creator, csv-data-summarizer, auto-*, smart-query, uni-agent, video-stickfigure, video-subtitle-remover | 系统自带或 `brew install python` |
+| **Node.js 16+** | feishu-doc, feishu-chat-history | 系统自带或 `brew install node` |
+| **ffmpeg** | video-creator, videocut-*, video-subtitle-remover | `brew install ffmpeg` |
 | **Playwright** | auto-douyin, auto-redbook, auto-weixin-video | `pip install playwright && playwright install chromium` |
 | **httpx + Pillow + numpy** | image-service | `pip install httpx pillow numpy` |
 | **pandas + matplotlib** | csv-data-summarizer | `pip install pandas matplotlib` |
+| **opencv-python** | video-stickfigure | `pip install opencv-python` |
+| **torch + paddleocr** | video-subtitle-remover | `pip install torch torchvision paddleocr`（首次运行自动安装） |
 
 ---
 
