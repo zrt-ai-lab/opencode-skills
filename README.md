@@ -1,6 +1,6 @@
 # OpenCode Skills
 
-OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。26 个 Skill，覆盖内容创作、自动发布、视频剪辑、飞书集成、开发工具、Agent 调度六大方向。
+OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。27 个 Skill，覆盖内容创作、自动发布、视频剪辑、飞书集成、开发工具、Agent 调度六大方向。
 
 ## 技能总览
 
@@ -23,6 +23,7 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。26 个 Skil
 |-------|------|------|------|
 | [auto-douyin](./auto-douyin/) | 抖音发布 | Playwright自动化上传视频，支持定时发布、话题标签、封面设置 | 🔑 首次扫码登录 |
 | [auto-weixin-video](./auto-weixin-video/) | 视频号发布 | Playwright自动化上传视频，支持原创声明、定时发布、合集管理 | 🔑 首次微信扫码 |
+| [wechat-publisher](./wechat-publisher/) | 公众号发布 | Markdown 转微信公众号格式，自动处理图片并提交草稿箱，附带文章与封面模板 | ⚙️ wenyan-cli + 微信公众号环境变量 |
 
 ### 🎥 视频剪辑（videocut 系列）
 
@@ -77,11 +78,22 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。26 个 Skil
 | **auto-douyin** | 运行时生成 | 执行 `scripts/get_cookie.py` 扫码登录，自动保存Cookie |
 | **auto-redbook** | 环境变量 | `XHS_COOKIE`，从浏览器登录小红书后获取 |
 | **auto-weixin-video** | 运行时生成 | 执行 `scripts/get_cookie.py` 微信扫码登录，自动保存Cookie |
+| **wechat-publisher** | 环境变量 | `WECHAT_APP_ID`、`WECHAT_APP_SECRET`；另需安装 `wenyan-cli` |
 | **feishu-doc** | `config.json` 或环境变量 | 飞书应用凭据（`app_id` / `app_secret`） |
 | **feishu-chat-history** | 应用配置 | 飞书应用凭据（`appId` / `appSecret`） |
 | **feishu-cron-reminder** | 应用配置 | 飞书应用凭据（同上） + OpenClaw cron |
 
 其余16个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
+
+## 仓库路径
+
+| 类型 | 路径 | 说明 |
+|------|------|------|
+| 发布版 Skill | `./<skill-name>/` | 可分享、可复制安装的 Skill 成品 |
+| 开发版 Skill | `./.opencode/skills/<skill-name>/` | 本地开发与验证目录，不纳入仓库发布 |
+| 打包产物 | `./dist/` | 由打包脚本生成的 zip 文件，不纳入源码提交 |
+
+新 Skill 的使用说明统一放在对应目录的 `README.md`，Agent 规范放在 `SKILL.md`。
 
 ---
 
