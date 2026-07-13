@@ -1,6 +1,6 @@
 # OpenCode Skills
 
-OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。27 个 Skill，覆盖内容创作、自动发布、视频剪辑、飞书集成、开发工具、Agent 调度六大方向。
+OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。30 个 Skill，覆盖内容创作、自动发布、视频剪辑、飞书集成、开发工具、Agent 调度六大方向。
 
 ## 技能总览
 
@@ -9,8 +9,10 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。27 个 Skil
 | Skill | 用途 | 说明 | 配置 |
 |-------|------|------|------|
 | [image-service](./image-service/) | 图像生成/编辑/分析 | 8大场景路由（信息图/封面/长图/幻灯片/漫画/文章插图/小红书/营销），4500+种组合。核心引擎：文生图、图生图、图生文、长图拼接 | ⚙️ 图像API + 视觉API |
+| [codex-image-service](./codex-image-service/) | Codex原生生图 | 复用8大图像场景流程、提示词和多图一致性规则，改用Codex内置图像生成工具，不依赖外部图像服务 | 无 |
 | [video-creator](./video-creator/) | 视频生成 | 图片+音频→视频全流程。支持TTS配音、淡入淡出转场、字幕烧录、片尾拼接、BGM混音。内含生图→配音→合成完整链路 | ⚙️ TTS API |
 | [video-copywriting](./video-copywriting/) | 短视频文案创作 | 8大爆款公式+黄金结构+三关校验（格式/结构/逻辑）。基于头部账号调研，含钩子模板、金句压缩、完整案例 | 无 |
+| [ai-video-script](./ai-video-script/) | AI视频脚本生成 | 主题→完整脚本→分镜→画面提示词→配音文案，适配后续拆镜、生图和视频制作 | 无 |
 | [video-stickfigure](./video-stickfigure/) | 火柴人素材生图 | AI生成粉笔画风格火柴人，HSV统一背景色。10种情绪动作+氛围元素库，深墨绿/纯黑两种风格方案 | 无 |
 | [story-to-scenes](./story-to-scenes/) | 故事拆镜生图 | 长文本智能拆分场景，批量生成风格统一、角色一致的配图。支持故事/课程/连环画/绘本 | 无 |
 | [auto-redbook](./auto-redbook/) | 小红书笔记创作 | Markdown→精美图片卡片渲染（8套主题），自动排版封面+正文卡片，支持一键发布 | 🔑 小红书Cookie |
@@ -55,6 +57,7 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。27 个 Skil
 | [log-analyzer](./log-analyzer/) | 日志智能分析 | 自动识别日志类型（Java/MySQL/Nginx/Trace/告警），实体提取，根因定位。支持100M+大文件 | 无 |
 | [mcp-builder](./mcp-builder/) | MCP Server开发 | 快速构建Model Context Protocol服务，支持Python(FastMCP)和Node/TypeScript | 无 |
 | [skill-creator](./skill-creator/) | Skill开发指南 | 标准化Skill开发模板、目录规范、最佳实践 | 无 |
+| [skill-scanner](./skill-scanner/) | Skill安全扫描 | 检测凭证、私钥、危险命令、外联下载、混淆代码和宿主敏感目录访问 | 无 |
 | [build-project-docs](./build-project-docs/) | 项目文档体系构建 | 分层式LLM友好文档生成。已有项目8阶段（探查→分类→索引→基础模块→业务模块→配置→变更日志→验证），新项目5阶段（PRD解析→架构→拆解→开发指南→模块文档） | 需要 git |
 
 ### 🤖 Agent 调度
@@ -83,7 +86,7 @@ OpenCode / OpenClaw 技能集合，扩展 AI Agent 的专业能力。27 个 Skil
 | **feishu-chat-history** | 应用配置 | 飞书应用凭据（`appId` / `appSecret`） |
 | **feishu-cron-reminder** | 应用配置 | 飞书应用凭据（同上） + OpenClaw cron |
 
-其余16个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
+其余19个skill无需配置，开箱即用（build-project-docs 仅需系统已安装 git）。
 
 ## 仓库路径
 

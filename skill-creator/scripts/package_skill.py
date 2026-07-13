@@ -91,8 +91,9 @@ def package_skill(skill_path: Path, output_dir: Path) -> Path | None:
         for file_path in skill_path.rglob("*"):
             if file_path.is_file():
                 # Skip hidden files and __pycache__
+                relative_path = file_path.relative_to(skill_path)
                 if any(part.startswith(".") or part == "__pycache__" 
-                       for part in file_path.parts):
+                       for part in relative_path.parts):
                     continue
                 arcname = file_path.relative_to(skill_path.parent)
                 zf.write(file_path, arcname)
