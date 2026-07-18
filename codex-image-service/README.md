@@ -9,6 +9,8 @@
 - 一个独立成品对应一次原生生图调用。
 - 串行引用真实定调图，维持角色、品牌和版式一致性。
 - 微信长图先分屏生成，再用本地脚本纵向拼接。
+- 连续长图为每个相邻屏建立接缝契约，预留安全区并逐条检查 1:1 接缝预览。
+- 拼接脚本支持重叠羽化、局部色彩匹配和接缝预览；零重叠硬拼仅用于卡片式版面。
 - 物料套图先交付独立成品，合集预览不计入成品数量。
 - 最终核对计划数量、实际数量、质量状态和真实文件。
 
@@ -28,10 +30,14 @@
 
 ```bash
 python scripts/assemble_images.py stitch-vertical \
+  --overlap 160 --blend cosine --color-match \
+  --seam-preview preview/wechat-seams.png \
   --output final/wechat-long.png source/01.png source/02.png source/03.png
 
 python scripts/assemble_images.py contact-sheet \
   --columns 2 --output preview/material-kit.png final/01.png final/02.png final/03.png final/04.png
 ```
+
+`--overlap` 应落在各屏已规划的无文字、无关键主体过渡安全区内。场景或镜头尺度明显跳变时，先生成或编辑桥接画面，再执行重叠融合；不要用大范围模糊或交叉淡化掩盖结构断裂。
 
 本 Skill 不包含外部图像服务配置、凭证、客户端或自动发布逻辑。
