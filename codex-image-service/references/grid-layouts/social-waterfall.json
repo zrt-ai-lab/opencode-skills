@@ -1,0 +1,13 @@
+{
+  "canvas": {"width": 1080, "height": 1440, "background": "#050816"},
+  "grid": {"columns": 3, "rows": 4, "padding": 30, "gap": 16},
+  "cells": [
+    {"source": 0, "column": 0, "row": 0, "column_span": 3, "row_span": 2, "radius": 24},
+    {"source": 1, "column": 0, "row": 2, "radius": 16},
+    {"source": 2, "column": 1, "row": 2, "radius": 16},
+    {"source": 3, "column": 2, "row": 2, "radius": 16},
+    {"source": 4, "column": 0, "row": 3, "radius": 16},
+    {"source": 5, "column": 1, "row": 3, "radius": 16},
+    {"source": 6, "column": 2, "row": 3, "radius": 16}
+  ]
+}

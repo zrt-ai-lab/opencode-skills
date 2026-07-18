@@ -63,7 +63,7 @@ description: Use when a Codex task needs native image generation or editing, esp
 | 逐图清单 | 编号、文件名、画面目的、主体、准确文字、比例 |
 | 视觉系统 | 色彩、字体气质、网格、留白、摄影或插画风格 |
 | 参考关系 | 定调图、共享参考图、上一张参考或独立生成 |
-| 工程处理 | 裁切、拼接、命名、联系表、最终格式 |
+| 工程处理 | 裁切、拼接、自定义网格、命名、联系表、最终格式 |
 | 验收标准 | 数量、文字、比例、一致性和禁用元素 |
 | 接缝工程（连续长图必填） | 相邻屏的共享元素、方向、色调、过渡安全区、重叠尺寸和桥接策略 |
 
@@ -121,7 +121,7 @@ description: Use when a Codex task needs native image generation or editing, esp
 └── preview/      # 联系表或合集预览，不计入成品数
 ```
 
-使用 `templates/batch-project-manifest.md` 记录文件名、用途、比例、参考关系和状态。需要纵向拼接或联系表时，可使用 `scripts/assemble_images.py`；脚本只处理本地图片，不负责生图。
+使用 `templates/batch-project-manifest.md` 记录文件名、用途、比例、参考关系和状态。需要纵向拼接、联系表或确定性网格排版时，可使用 `scripts/assemble_images.py`；脚本只处理本地图片，不负责生图。
 
 ### 微信长图
 
@@ -145,6 +145,19 @@ description: Use when a Codex task needs native image generation or editing, esp
 
 先用 `templates/material-kit-plan.md` 定义每张独立成品。默认建议包含主视觉、卖点或服务、场景或环境、行动引导；根据主题增减。禁止用桌面样机、四宫格或合集展示替代独立文件。需要合集时，在全部独立成品通过后额外生成联系表。
 
+根据行业选择对应模板：编辑与公众号、电商产品、建筑室内、时尚美妆、食品饮料、文旅文化。行业视觉语言、必须锁定的身份信息和派生版式见 `references/industry-playbooks.md`。行业切换不能只换背景颜色；应同时调整构图、材质、灯光、镜头和发布载体。
+
+### 自定义网格
+
+九宫格、故事板、杂志拼图和非对称网格必须先生成并验收所有独立源图，再执行确定性排版。一次生图得到的网格仍然只算一张图片，不能替代独立源图。
+
+- 使用 `templates/custom-grid-plan.md` 记录源图、平台、画布、布局文件和裁切锚点。
+- 使用 `references/grid-layouts/` 的预设，或创建项目级 JSON 布局。
+- `scripts/assemble_images.py custom-grid --layout <json>` 支持等分网格、跨行跨列、自由像素坐标、`cover` / `contain` / `stretch`、裁切锚点、圆角和边框。
+- 产品、人物和证据图禁止使用 `stretch`；`cover` 模式必须明确主体锚点。
+- 输出布局报告，逐格核对来源、位置、裁切方式和顺序。
+- 同一组独立源图可以派生多个平台版式；派生网格不增加独立生图数量。
+
 ## 逐张质量门
 
 使用 `templates/quality-gate.md` 检查：
@@ -155,6 +168,7 @@ description: Use when a Codex task needs native image generation or editing, esp
 - 无水印、随机品牌、无关人物、畸形结构或敏感信息；
 - 文件真实存在，后处理结果能打开，计划数量与实际数量一致。
 - 连续长图的每条接缝都通过 1:1 局部验收，无明显横向硬切、重影或色调突变。
+- 自定义网格无越界、意外重叠、错误拉伸或关键内容裁切，且布局报告可追溯。
 
 文字不合格时，先缩短文字、扩大文字区域或改为无字底图后再返工。只重做失败项。
 
