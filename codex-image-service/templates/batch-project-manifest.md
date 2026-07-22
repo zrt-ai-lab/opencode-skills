@@ -12,6 +12,9 @@
 | 视觉系统 | {色彩、字体气质、网格、留白、风格} |
 | 禁止元素 | {水印、随机文字、敏感信息等} |
 | 用户确认 | {未确认 / 已确认，附确认语义} |
+| 合成 Profile | {material-kit / grid / storyboard / carousel / document / generated-continuous / panorama / object-blend} |
+| 算法计划 | {alignment + seam + blend / deterministic layout} |
+| 失败策略 | {拒绝并返工；禁止硬拼回退} |
 
 ## 产物台账
 
@@ -27,7 +30,10 @@
 - 最终文件目录：`final/`
 - 预览目录：`preview/`
 - 命名规则：`{序号}-{短用途}.{格式}`
-- 后处理：{无 / 纵向拼接 / 统一裁切 / 联系表}
+- 后处理：{无 / 确定性布局 / 连续融合 / 全景 / 蒙版植入 / 统一裁切 / 联系表}
+- 合成项目：`composition-project.json`
+- 路由报告：`preview/composition-routing.json`
+- 算法或布局报告：{路径}
 
 ## 最终对账
 

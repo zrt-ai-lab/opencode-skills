@@ -1,6 +1,6 @@
 ---
 name: codex-image-service
-description: Use when a Codex task needs native image generation or editing, especially a set, series, material kit, long image, multi-screen design, storyboard, carousel, or other deliverable requiring multiple consistent images.
+description: Use when Codex needs native image generation, editing, or engineered multi-image composition, especially sets, material kits, grids, storyboards, carousels, presentations, panoramas, masked composites, long images, or other deliverables requiring consistent independent assets and deterministic post-processing.
 ---
 
 # Codex 图像工程
@@ -13,13 +13,14 @@ description: Use when a Codex task needs native image generation or editing, esp
 3. 用户初始请求中的“直接生成、别问、赶时间、你决定”绝对不能充当确认；
 4. 确认只能发生在用户看到最新完整规划之后；
 5. N 张独立成品必须至少执行 N 次独立生图，一次调用生成的拼贴、四宫格或样机只能算 1 张预览。
+6. 所有批量项目必须声明交付形态和合成策略；需要像素融合时，未通过项目清单和算法前置条件机器校验就禁止生成或合成。用户只说“长图”而未指定卡片式时，连续模式是默认模式。
 
 违反其中任何一条都表示任务执行失败。没有“先出一张再补规划”“先调用一次试试”“按精神执行”等例外。
 </HARD-GATE>
 
 ## 核心原则
 
-使用 Codex 原生 `image_gen` 工具完成生成或编辑，并把多图需求当作一个可验收的图像工程，而不是一条提示词。
+使用 Codex 原生 `image_gen` 工具完成生成或编辑，并把多图需求当作一个可验收的**批量图像工程**，而不是一条提示词。长图只是其中一种；物料套图、九宫格、故事板、轮播、PPT 页面、全景和局部植入都必须按各自交付语义选择工程流程。
 
 **独立成品数量决定生图次数。四张物料至少需要四次独立生成；一张包含四个版面的合集图仍然只算一张预览，不算四张成品。**
 
@@ -63,7 +64,9 @@ description: Use when a Codex task needs native image generation or editing, esp
 | 逐图清单 | 编号、文件名、画面目的、主体、准确文字、比例 |
 | 视觉系统 | 色彩、字体气质、网格、留白、摄影或插画风格 |
 | 参考关系 | 定调图、共享参考图、上一张参考或独立生成 |
-| 工程处理 | 裁切、拼接、命名、联系表、最终格式 |
+| 工程处理 | 裁切、拼接、自定义网格、命名、联系表、最终格式 |
+| 合成策略路由 | `material-kit` / `grid` / `storyboard` / `carousel` / `document` / `generated-continuous` / `panorama` / `object-blend` |
+| 算法计划 | 对齐、接缝、融合、所需蒙版或布局、依赖与失败策略 |
 | 验收标准 | 数量、文字、比例、一致性和禁用元素 |
 | 接缝工程（连续长图必填） | 相邻屏的共享元素、方向、色调、过渡安全区、重叠尺寸和桥接策略 |
 
@@ -78,13 +81,17 @@ description: Use when a Codex task needs native image generation or editing, esp
 严格按顺序推进，不得跳步：
 
 1. **INTAKE**：提取主题、用途、受众、平台、数量、比例、文字、参考图和限制。
-2. **PLAN**：加载对应模板，建立逐图清单、参考关系、命名和后处理方案。
-3. **AWAIT_CONFIRMATION**：展示完整规划；此状态禁止调用生图工具。
-4. **STYLE_ANCHOR**：确认后生成第一张独立成品作为定调图，并检查风格、构图、比例和文字区域。
-5. **BATCH_GENERATE**：按清单串行生成剩余独立成品；每张调用一次原生工具。
-6. **REWORK**：只返工不合格的图片，不推翻已通过的图片。
-7. **POST_PROCESS**：按计划执行拼接、接缝融合、统一命名、尺寸检查或联系表制作。
-8. **DELIVER**：逐项对账计划数量与实际数量，列出实际文件和状态。
+2. **CLASSIFY_DELIVERY**：判断独立资产、确定性布局、连续融合、实拍全景或蒙版植入；长图只是其中一种。
+3. **PLAN**：加载对应模板，建立逐图清单、参考关系、命名、合成 Profile 和后处理方案。
+4. **AWAIT_CONFIRMATION**：展示完整规划；此状态禁止调用生图工具。
+5. **VALIDATE_PROJECT**：确认后先填写 `composition-project.json` 并执行机器校验；连续长图再校验专用接缝项目。未通过时禁止生图。
+6. **STYLE_ANCHOR**：项目通过后生成第一张独立成品作为定调图，并检查风格、构图、比例和文字区域。
+7. **BATCH_GENERATE**：按参考依赖串行生成；无依赖的独立物料才允许并行。连续图逐屏传递真实接口图。
+8. **VERIFY_ASSETS**：逐张检查；按 Profile 验证接口、布局来源、全景重叠或植入蒙版。
+9. **ROUTE_COMPOSITION**：结合用户交付语义和真实素材诊断，确定对齐、接缝、融合算法；记录路由报告。
+10. **REWORK**：只返工不合格图片、接口、蒙版或布局，不推翻已通过项。
+11. **POST_PROCESS**：执行确定性布局或可信像素融合，输出算法、布局和接缝报告。
+12. **DELIVER**：对账计划数量、实际数量、派生产物、算法报告和失败项。
 
 ## 原生工具调用规则
 
@@ -121,11 +128,40 @@ description: Use when a Codex task needs native image generation or editing, esp
 └── preview/      # 联系表或合集预览，不计入成品数
 ```
 
-使用 `templates/batch-project-manifest.md` 记录文件名、用途、比例、参考关系和状态。需要纵向拼接或联系表时，可使用 `scripts/assemble_images.py`；脚本只处理本地图片，不负责生图。
+使用 `templates/batch-project-manifest.md` 记录文件名、用途、比例、参考关系和状态。所有批量项目复制 `templates/composition-project.json`，明确 Profile、独立资产和派生交付物；确认后运行：
+
+```bash
+python scripts/adaptive_compositor.py validate-project <composition-project.json>
+python scripts/adaptive_compositor.py plan --intent "<用户需求>" --output <routing.json>
+```
+
+需要纵向拼接、联系表或确定性网格排版时使用 `scripts/assemble_images.py`；高级图像合成使用 `scripts/adaptive_compositor.py`。脚本只处理本地图片，不负责生图。
+
+### 合成策略路由
+
+先按最终交付语义选择 Profile，再根据真实图片决定算法参数。完整边界见 `references/composition-routing.md`。
+
+- `material-kit`：宣传物料、电商套图和品牌系列。保留全部独立成品，只派生联系表或平台版式；禁止像素融合。
+- `grid`：九宫格、杂志拼图和非对称网格。使用确定性布局，不做特征对齐。
+- `storyboard`：分镜、漫画格和故事板。保留顺序、编号和镜头边界。
+- `carousel` / `document`：轮播、PPT、信息图页面。保持页面独立，不把页面融合成一张图。
+- `generated-continuous`：生成式连续多屏或长图。使用接口传递、平移校正、重叠检测和多频段融合。
+- `panorama`：建筑、室内或风景实拍。使用特征点匹配、RANSAC 单应性、Graph Cut 和多频段融合。
+- `object-blend`：有明确蒙版的抠图植入或局部换景。使用蒙版定位和 Poisson 融合。
+
+自动路由失败、缺少高级依赖、蒙版、匹配点、可信重叠或内点率时必须停止并返工。禁止自动降级为硬拼。单应性不得用于文字排版图；光流不得拉扯人脸、产品、Logo 或建筑硬边；Poisson 没有真实蒙版时禁止执行。
 
 ### 微信长图
 
-先用 `templates/wechat-long-image-plan.md` 拆成 4–8 个常规比例分屏。逐屏生成并验收后，再纵向拼接。禁止直接要求模型生成一张超长图；拼接图之外仍保留每个分屏源文件。
+先用 `templates/wechat-long-image-plan.md` 拆成 4–8 个常规比例分屏。用户只说“长图”时，**连续模式是默认模式**；只有用户明确要求卡片式、章节式、分隔线或独立内容块，才能选择 `cards`。
+
+规划确认后，复制 `templates/long-image-project.json` 到项目目录，填完整屏幕和 N−1 条接缝并将状态更新为 `confirmed`。运行以下机器校验，未通过时禁止调用生图工具：
+
+```bash
+python scripts/long_image_pipeline.py validate-project <project.json>
+```
+
+逐屏生成并验收后再纵向拼接。禁止直接要求模型生成一张超长图；拼接图之外仍保留每个分屏源文件。
 
 #### 连续长图接缝硬规则
 
@@ -134,16 +170,34 @@ description: Use when a Codex task needs native image generation or editing, esp
 - 规划阶段为每个相邻屏建立**接缝契约**：上一屏底部、下一屏顶部、共享过渡元素、运动方向、色温、亮度、主体尺度、重叠量和桥接策略。
 - 每屏顶部和底部各预留约 12%–20% 的**过渡安全区**。安全区只放云、雾、火焰、光尘、布带、渐变背景等可融合纹理，不放标题、人脸、手、产品、建筑硬边或关键证据。
 - 后一屏提示词必须明确承接上一屏底部的共享元素和方向；仍需参考真实定调图或上一屏结果，不能只靠相同风格词。
+- 每生成一屏，立即使用 `long_image_pipeline.py extract-interface` 提取底部 12%–20% 接口图。生成下一屏时，`referenced_image_paths` 必须同时包含上一屏完整图和该接口图；提示词明确“顶部安全区承接接口图，关键结构不得进入安全区”。缺少真实接口图时禁止继续生成。
+- 下一屏生成后，使用 `long_image_pipeline.py compare-interfaces` 比较上一屏底部和下一屏顶部。接口分数低于项目阈值时只返工下一屏；不得把不连续图片交给后处理硬救。
 - 统一比例或裁切时优先保护过渡安全区。裁切会移除安全区、截断共享元素或改变主体尺度时，标记该屏“待返工”，不得靠强裁切后继续拼接。
-- 同类纹理接缝使用 8%–15% 的纵向重叠、余弦羽化和局部色彩匹配。场景、空间或镜头尺度明显跳变时，必须生成或编辑无文字、无关键主体的桥接画面，不能用大范围模糊或交叉淡化掩盖。
+- 同类纹理接缝使用 8%–15% 的纵向重叠、平移校正、多频段融合和局部色彩匹配；只有显式轻量模式才使用余弦羽化。场景、空间或镜头尺度明显跳变时，必须生成或编辑无文字、无关键主体的桥接画面，不能用大范围模糊或交叉淡化掩盖。
 - 拼接后必须导出每条接缝的 1:1 局部预览，逐条检查水平切线、重影、亮度跳变、纹理方向和结构断裂。**禁止仅凭缩略长图或联系表判定接缝通过。**
-- 推荐使用 `scripts/assemble_images.py stitch-vertical --overlap <像素> --blend cosine --color-match --seam-preview <路径>`。默认零重叠模式只用于明确需要硬分隔的版式。
+- 连续模式使用 `scripts/assemble_images.py stitch-vertical --mode continuous --project <项目 JSON> --overlap auto --blend multiband --seam-preview <路径> --seam-report <路径>`。脚本会再次校验项目确认状态、分屏顺序、接口文件和逐缝比对报告，再寻找真实重叠并执行多频段融合。**缺少工程证据或找不到可信重叠区域时禁止拼接**，必须返工对应接口。
+- 卡片式必须显式使用 `--mode cards`。命令不提供 `--mode` 时直接失败；零重叠硬拼不再是默认行为。
 
 详细字段和执行顺序见 `templates/wechat-long-image-plan.md`，验收规则见 `templates/quality-gate.md`。
 
 ### 物料套图
 
 先用 `templates/material-kit-plan.md` 定义每张独立成品。默认建议包含主视觉、卖点或服务、场景或环境、行动引导；根据主题增减。禁止用桌面样机、四宫格或合集展示替代独立文件。需要合集时，在全部独立成品通过后额外生成联系表。
+
+根据行业选择对应模板：编辑与公众号、电商产品、建筑室内、时尚美妆、食品饮料、文旅文化。行业视觉语言、必须锁定的身份信息和派生版式见 `references/industry-playbooks.md`。行业切换不能只换背景颜色；应同时调整构图、材质、灯光、镜头和发布载体。
+
+物料套图默认 Profile 为 `material-kit`，主视觉、卖点图、场景图和行动图是独立交付物。只有用户另行要求九宫格或合集时才派生 `grid`；派生图不能代替、也不能计入独立成品数量。
+
+### 自定义网格
+
+九宫格、故事板、杂志拼图和非对称网格必须先生成并验收所有独立源图，再执行确定性排版。一次生图得到的网格仍然只算一张图片，不能替代独立源图。
+
+- 使用 `templates/custom-grid-plan.md` 记录源图、平台、画布、布局文件和裁切锚点。
+- 使用 `references/grid-layouts/` 的预设，或创建项目级 JSON 布局。
+- `scripts/assemble_images.py custom-grid --layout <json>` 支持等分网格、跨行跨列、自由像素坐标、`cover` / `contain` / `stretch`、裁切锚点、圆角和边框。
+- 产品、人物和证据图禁止使用 `stretch`；`cover` 模式必须明确主体锚点。
+- 输出布局报告，逐格核对来源、位置、裁切方式和顺序。
+- 同一组独立源图可以派生多个平台版式；派生网格不增加独立生图数量。
 
 ## 逐张质量门
 
@@ -155,6 +209,8 @@ description: Use when a Codex task needs native image generation or editing, esp
 - 无水印、随机品牌、无关人物、畸形结构或敏感信息；
 - 文件真实存在，后处理结果能打开，计划数量与实际数量一致。
 - 连续长图的每条接缝都通过 1:1 局部验收，无明显横向硬切、重影或色调突变。
+- 自定义网格无越界、意外重叠、错误拉伸或关键内容裁切，且布局报告可追溯。
+- 合成路由与用户交付语义一致；算法报告记录实际对齐、接缝、融合、置信度和失败策略。
 
 文字不合格时，先缩短文字、扩大文字区域或改为无字底图后再返工。只重做失败项。
 
@@ -180,6 +236,12 @@ description: Use when a Codex task needs native image generation or editing, esp
 - 只展示首张定调图便结束任务。
 - 生成后不做逐张验收、不核对计划数量和实际数量。
 - 为追求速度并发生成需要连续一致性的图片。
+- 连续长图未提取接口图、未比较接口，便把独立图片交给拼接脚本。
+- 省略 `--mode`、`--project`、接缝预览或接缝报告，依赖脚本默认值硬拼。
+- 自动重叠检测失败后降低阈值强行通过，而不是返工图片接口。
+- 不判断交付场景，看到多张图就调用融合算法。
+- 对物料、九宫格、故事板、轮播或 PPT 页面做无意义的特征匹配和像素融合。
+- 高级算法不可用或低置信度时静默回退成硬拼。
 
 出现任一红线，立即停止并回到正确状态。
 
@@ -190,4 +252,4 @@ description: Use when a Codex task needs native image generation or editing, esp
 - 不默认发布到公众号、小红书或其他平台。
 - 公众号发布交给 `wechat-publisher`；视频节奏交给 `ai-video-script`；故事拆镜交给 `story-to-scenes`。
 
-请求结构见 `templates/codex-image-request.md`；批量工程模板位于 `templates/`；场景细则见 `references/scene-playbooks.md`。
+请求结构见 `templates/codex-image-request.md`；批量工程模板位于 `templates/`；合成路由见 `references/composition-routing.md`；场景细则见 `references/scene-playbooks.md`。

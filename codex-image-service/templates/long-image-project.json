@@ -1,0 +1,40 @@
+{
+  "mode": "continuous",
+  "confirmed": false,
+  "interface_ratio": 0.15,
+  "screens": [
+    {
+      "id": "01",
+      "file": "source/01-opening.png",
+      "prompt": "首屏提示词；底部 15% 仅保留可连续延展的环境纹理",
+      "top_interface": null,
+      "bottom_interface": "interfaces/01-bottom.png",
+      "references": []
+    },
+    {
+      "id": "02",
+      "file": "source/02-detail.png",
+      "prompt": "顶部 15% 承接 01-bottom.png；底部 15% 为下一屏预留接口",
+      "top_interface": "interfaces/01-bottom.png",
+      "bottom_interface": null,
+      "references": [
+        "source/01-opening.png",
+        "interfaces/01-bottom.png"
+      ]
+    }
+  ],
+  "seams": [
+    {
+      "from": "01",
+      "to": "02",
+      "shared_element": "柔和阳光与浅木色墙面",
+      "direction": "光线从左上延伸到右下",
+      "color_light": "暖米白，亮度连续",
+      "safe_zone_ratio": 0.15,
+      "method": "overlap",
+      "status": "planned",
+      "interface": "interfaces/01-bottom.png",
+      "comparison_report": "preview/interface-01-02.json"
+    }
+  ]
+}

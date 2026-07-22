@@ -1,0 +1,2 @@
+-r requirements.txt
+opencv-python-headless>=4.10
