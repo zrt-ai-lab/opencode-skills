@@ -1,0 +1,41 @@
+{
+  "intent": "描述最终发布场景和组合目标",
+  "profile": "auto",
+  "confirmed": false,
+  "assets": [
+    {
+      "id": "asset-01",
+      "file": "source/01-hero.png",
+      "purpose": "主视觉独立成品",
+      "status": "planned"
+    },
+    {
+      "id": "asset-02",
+      "file": "source/02-detail.png",
+      "purpose": "卖点或场景独立成品",
+      "status": "planned"
+    }
+  ],
+  "deliverables": [
+    {
+      "id": "delivery-01",
+      "type": "independent-assets",
+      "file": "final/"
+    },
+    {
+      "id": "delivery-02",
+      "type": "derived-layout",
+      "file": "preview/contact-sheet.png"
+    }
+  ],
+  "pipeline": {
+    "alignment": "none",
+    "seam": "layout-boundaries",
+    "blend": "none"
+  },
+  "quality": {
+    "fallback": "reject-or-rework",
+    "preserve_independent_assets": true,
+    "require_algorithm_report": true
+  }
+}

@@ -14,6 +14,13 @@ from typing import Any, Iterable
 
 from PIL import Image, ImageColor, ImageDraw, ImageOps, ImageStat
 
+from long_image_pipeline import (
+    find_best_overlap,
+    interface_similarity,
+    validate_project,
+    write_json,
+)
+
 
 def load_images(paths: Iterable[str]) -> list[Image.Image]:
     images: list[Image.Image] = []
@@ -33,6 +40,82 @@ def save_image(image: Image.Image, output: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path)
     return path
+
+
+def _project_resource(project_path: Path, raw_path: Any) -> Path:
+    resource = Path(str(raw_path))
+    if not resource.is_absolute():
+        resource = project_path.parent / resource
+    return resource.resolve()
+
+
+def validate_stitch_project(
+    raw_project_path: str,
+    image_paths: list[str],
+    mode: str,
+    min_seam_score: float,
+) -> dict[str, Any]:
+    project_path = Path(raw_project_path)
+    if not project_path.is_file():
+        raise FileNotFoundError(f"project does not exist: {project_path}")
+    project = json.loads(project_path.read_text(encoding="utf-8"))
+    validate_project(project)
+    if project["mode"] != mode:
+        raise ValueError(
+            f"project mode {project['mode']} does not match stitch mode {mode}"
+        )
+
+    screens = project["screens"]
+    if len(screens) != len(image_paths):
+        raise ValueError("project screen count must match stitch input count")
+    actual_inputs = [Path(path).resolve() for path in image_paths]
+    declared_inputs = [
+        _project_resource(project_path, screen["file"]) for screen in screens
+    ]
+    if declared_inputs != actual_inputs:
+        raise ValueError(
+            "stitch inputs must match project screens exactly and in declared order"
+        )
+
+    if mode == "continuous":
+        for index, seam in enumerate(project["seams"]):
+            interface_path = _project_resource(project_path, seam["interface"])
+            if not interface_path.is_file():
+                raise FileNotFoundError(
+                    f"seam {index} interface does not exist: {interface_path}"
+                )
+            report_path = _project_resource(project_path, seam["comparison_report"])
+            if not report_path.is_file():
+                raise FileNotFoundError(
+                    f"seam {index} comparison report does not exist: {report_path}"
+                )
+            comparison = json.loads(report_path.read_text(encoding="utf-8"))
+            if comparison.get("passed") is not True:
+                raise ValueError(f"seam {index} comparison report did not pass")
+            score = comparison.get("score")
+            if isinstance(score, bool) or not isinstance(score, (int, float)):
+                raise ValueError(f"seam {index} comparison score must be numeric")
+            if float(score) < min_seam_score:
+                raise ValueError(
+                    f"seam {index} comparison score {float(score):.3f} "
+                    f"is below {min_seam_score:.3f}"
+                )
+            expected_previous = actual_inputs[index]
+            expected_following = actual_inputs[index + 1]
+            reported_previous = _project_resource(
+                report_path, comparison.get("previous", "")
+            )
+            reported_following = _project_resource(
+                report_path, comparison.get("following", "")
+            )
+            if (reported_previous, reported_following) != (
+                expected_previous,
+                expected_following,
+            ):
+                raise ValueError(
+                    f"seam {index} comparison report does not match adjacent inputs"
+                )
+    return project
 
 
 def _resize_to_common_width(images: list[Image.Image]) -> list[Image.Image]:
@@ -106,53 +189,55 @@ def _locally_match_top(
 
 def stitch_vertical(
     images: list[Image.Image],
+    mode: str,
     gap: int,
     background: str,
-    overlap: int = 0,
-    blend: str = "none",
-    color_match: bool = False,
+    overlap: int | str,
+    blend: str,
+    color_match: bool,
     color_match_span: int = 0,
-) -> tuple[Image.Image, list[int]]:
-    if gap < 0 or overlap < 0:
-        raise ValueError("gap and overlap must not be negative")
-    if gap and overlap:
-        raise ValueError("gap and overlap cannot be used together")
-    if overlap and blend == "none":
-        raise ValueError("overlap requires linear or cosine blending")
-    if not overlap and blend != "none":
-        raise ValueError("a blend mode requires a positive overlap")
-    if color_match and not overlap:
-        raise ValueError("color matching requires a positive overlap")
+    min_overlap_ratio: float = 0.08,
+    max_overlap_ratio: float = 0.2,
+    min_seam_score: float = 0.72,
+    alignment: str = "translation",
+    max_horizontal_shift_ratio: float = 0.08,
+    min_alignment_confidence: float = 0.01,
+) -> tuple[Image.Image, list[dict[str, Any]]]:
+    if mode not in {"continuous", "cards"}:
+        raise ValueError("mode must be continuous or cards")
+    if gap < 0:
+        raise ValueError("gap must not be negative")
+    if not 0 <= min_seam_score <= 1:
+        raise ValueError("min seam score must be between 0 and 1")
+    if alignment not in {"none", "translation"}:
+        raise ValueError("vertical stitch alignment must be none or translation")
+    if not 0 <= max_horizontal_shift_ratio <= 0.25:
+        raise ValueError("max horizontal shift ratio must be between 0 and 0.25")
+    if not 0 <= min_alignment_confidence <= 1:
+        raise ValueError("minimum alignment confidence must be between 0 and 1")
+    if mode == "cards":
+        if overlap not in {0, "0"}:
+            raise ValueError("cards mode does not allow overlap; use gap for separation")
+        if blend != "none" or color_match:
+            raise ValueError("cards mode does not use blending or color matching")
+    else:
+        if gap:
+            raise ValueError("continuous mode does not allow gaps")
+        if overlap in {0, "0"}:
+            raise ValueError("continuous mode forbids zero-overlap hard stitching")
+        if blend not in {"linear", "cosine", "multiband"}:
+            raise ValueError(
+                "continuous mode requires linear, cosine, or multiband blending"
+            )
 
     resized = _resize_to_common_width(images)
     width = resized[0].width
     canvas = resized[0].copy()
-    seam_positions: list[int] = []
+    previous_image = resized[0]
+    seam_records: list[dict[str, Any]] = []
 
-    for next_image in resized[1:]:
-        if overlap >= min(canvas.height, next_image.height):
-            raise ValueError("overlap must be smaller than every adjacent image")
-        if color_match:
-            span = color_match_span or overlap * 2
-            next_image = _locally_match_top(next_image, canvas, overlap, span)
-
-        if overlap:
-            seam_start = canvas.height - overlap
-            output = Image.new(
-                "RGB", (width, canvas.height + next_image.height - overlap)
-            )
-            output.paste(canvas, (0, 0))
-            previous_band = canvas.crop((0, seam_start, width, canvas.height))
-            next_band = next_image.crop((0, 0, width, overlap))
-            mask = _vertical_mask(width, overlap, blend)
-            blended = Image.composite(next_band, previous_band, mask)
-            output.paste(blended, (0, seam_start))
-            output.paste(
-                next_image.crop((0, overlap, width, next_image.height)),
-                (0, canvas.height),
-            )
-            seam_positions.append(seam_start + overlap // 2)
-        else:
+    for index, next_image in enumerate(resized[1:], start=1):
+        if mode == "cards":
             output = Image.new(
                 "RGB",
                 (width, canvas.height + gap + next_image.height),
@@ -160,25 +245,142 @@ def stitch_vertical(
             )
             output.paste(canvas, (0, 0))
             output.paste(next_image, (0, canvas.height + gap))
-            seam_positions.append(canvas.height + gap // 2)
+            seam_records.append(
+                {
+                    "from_index": index - 1,
+                    "to_index": index,
+                    "position": canvas.height + gap // 2,
+                    "overlap": 0,
+                    "score": None,
+                    "mode": "cards",
+                }
+            )
+            canvas = output
+            previous_image = next_image
+            continue
+
+        if overlap == "auto":
+            actual_overlap, score = find_best_overlap(
+                previous_image,
+                next_image,
+                min_overlap_ratio,
+                max_overlap_ratio,
+            )
+        else:
+            actual_overlap = int(overlap)
+            if actual_overlap < 1:
+                raise ValueError("continuous overlap must be positive or auto")
+            previous_band = previous_image.crop(
+                (
+                    0,
+                    previous_image.height - actual_overlap,
+                    previous_image.width,
+                    previous_image.height,
+                )
+            )
+            next_band = next_image.crop((0, 0, next_image.width, actual_overlap))
+            score = interface_similarity(previous_band, next_band)
+
+        if actual_overlap >= min(previous_image.height, next_image.height):
+            raise ValueError("overlap must be smaller than every adjacent image")
+        alignment_record: dict[str, Any] = {"method": "none"}
+        if alignment == "translation":
+            from adaptive_compositor import phase_correlation_translation, shift_image
+
+            previous_band = previous_image.crop(
+                (
+                    0,
+                    previous_image.height - actual_overlap,
+                    previous_image.width,
+                    previous_image.height,
+                )
+            )
+            next_band = next_image.crop((0, 0, next_image.width, actual_overlap))
+            dx, dy, confidence = phase_correlation_translation(
+                previous_band, next_band
+            )
+            maximum_shift = round(width * max_horizontal_shift_ratio)
+            if confidence >= min_alignment_confidence and abs(dx) <= maximum_shift:
+                candidate = shift_image(next_image, dx, 0)
+                candidate_band = candidate.crop((0, 0, width, actual_overlap))
+                candidate_score = interface_similarity(previous_band, candidate_band)
+                if candidate_score >= score:
+                    next_image = candidate
+                    score = candidate_score
+                    alignment_record = {
+                        "method": "translation",
+                        "dx": dx,
+                        "detected_dy": dy,
+                        "applied_dy": 0,
+                        "confidence": confidence,
+                    }
+        if score < min_seam_score:
+            raise ValueError(
+                "no trustworthy overlap for seam "
+                f"{index - 1}->{index}: score {score:.3f} below {min_seam_score:.3f}"
+            )
+        if color_match:
+            span = color_match_span or actual_overlap * 2
+            next_image = _locally_match_top(
+                next_image, previous_image, actual_overlap, span
+            )
+
+        seam_start = canvas.height - actual_overlap
+        output = Image.new(
+            "RGB", (width, canvas.height + next_image.height - actual_overlap)
+        )
+        output.paste(canvas, (0, 0))
+        previous_band = canvas.crop((0, seam_start, width, canvas.height))
+        next_band = next_image.crop((0, 0, width, actual_overlap))
+        if blend == "multiband":
+            from adaptive_compositor import multiband_blend, transition_mask
+
+            blended = multiband_blend(
+                previous_band,
+                next_band,
+                transition_mask((width, actual_overlap), "vertical"),
+            )
+        else:
+            mask = _vertical_mask(width, actual_overlap, blend)
+            blended = Image.composite(next_band, previous_band, mask)
+        output.paste(blended, (0, seam_start))
+        output.paste(
+            next_image.crop((0, actual_overlap, width, next_image.height)),
+            (0, canvas.height),
+        )
+        seam_records.append(
+            {
+                "from_index": index - 1,
+                "to_index": index,
+                "position": seam_start + actual_overlap // 2,
+                "overlap": actual_overlap,
+                "score": score,
+                "mode": "continuous",
+                "alignment": alignment_record,
+                "seam": "overlap",
+                "blend": blend,
+            }
+        )
         canvas = output
-    return canvas, seam_positions
+        previous_image = next_image
+    return canvas, seam_records
 
 
 def seam_preview(
     image: Image.Image,
-    seam_positions: list[int],
+    seam_records: list[dict[str, Any]],
     band_height: int,
     gap: int = 16,
     background: str = "#111827",
 ) -> Image.Image:
     if band_height < 2:
         raise ValueError("seam preview height must be at least 2")
-    if not seam_positions:
+    if not seam_records:
         raise ValueError("at least two input images are required for a seam preview")
 
     bands: list[Image.Image] = []
-    for position in seam_positions:
+    for seam in seam_records:
+        position = int(seam["position"])
         top = max(0, position - band_height // 2)
         bottom = min(image.height, top + band_height)
         top = max(0, bottom - band_height)
@@ -445,17 +647,32 @@ def build_parser() -> argparse.ArgumentParser:
 
     stitch = subparsers.add_parser("stitch-vertical", help="join images top to bottom")
     stitch.add_argument("images", nargs="+")
+    stitch.add_argument("--mode", choices=("continuous", "cards"), required=True)
     stitch.add_argument("--output", required=True)
+    stitch.add_argument(
+        "--project", help="validated long-image project JSON; required for continuous mode"
+    )
     stitch.add_argument("--gap", type=int, default=0)
     stitch.add_argument("--background", default="#ffffff")
-    stitch.add_argument("--overlap", type=int, default=0)
+    stitch.add_argument("--overlap", default=None, help="positive pixels or auto")
     stitch.add_argument(
-        "--blend", choices=("none", "linear", "cosine"), default="none"
+        "--blend", choices=("none", "linear", "cosine", "multiband"), default=None
     )
-    stitch.add_argument("--color-match", action="store_true")
+    stitch.add_argument(
+        "--color-match", action=argparse.BooleanOptionalAction, default=None
+    )
     stitch.add_argument("--color-match-span", type=int, default=0)
     stitch.add_argument("--seam-preview")
     stitch.add_argument("--seam-height", type=int, default=240)
+    stitch.add_argument("--seam-report")
+    stitch.add_argument("--min-overlap-ratio", type=float, default=0.08)
+    stitch.add_argument("--max-overlap-ratio", type=float, default=0.2)
+    stitch.add_argument("--min-seam-score", type=float, default=0.72)
+    stitch.add_argument(
+        "--alignment", choices=("none", "translation"), default="translation"
+    )
+    stitch.add_argument("--max-horizontal-shift-ratio", type=float, default=0.08)
+    stitch.add_argument("--min-alignment-confidence", type=float, default=0.01)
 
     sheet = subparsers.add_parser("contact-sheet", help="build a preview grid")
     sheet.add_argument("images", nargs="+")
@@ -479,14 +696,38 @@ def main() -> int:
     args = build_parser().parse_args()
     images = load_images(args.images)
     if args.command == "stitch-vertical":
+        if args.mode == "continuous":
+            if not args.seam_preview:
+                raise ValueError("continuous mode requires --seam-preview")
+            if not args.seam_report:
+                raise ValueError("continuous mode requires --seam-report")
+            if not args.project:
+                raise ValueError("continuous mode requires --project")
+            validate_stitch_project(
+                args.project, args.images, args.mode, args.min_seam_score
+            )
+            overlap: int | str = args.overlap or "auto"
+            blend = args.blend or "multiband"
+            color_match = True if args.color_match is None else args.color_match
+        else:
+            overlap = int(args.overlap or 0)
+            blend = args.blend or "none"
+            color_match = False if args.color_match is None else args.color_match
         result, seams = stitch_vertical(
             images,
+            args.mode,
             args.gap,
             args.background,
-            args.overlap,
-            args.blend,
-            args.color_match,
+            overlap,
+            blend,
+            color_match,
             args.color_match_span,
+            args.min_overlap_ratio,
+            args.max_overlap_ratio,
+            args.min_seam_score,
+            args.alignment,
+            args.max_horizontal_shift_ratio,
+            args.min_alignment_confidence,
         )
     elif args.command == "contact-sheet":
         result = contact_sheet(
@@ -504,6 +745,16 @@ def main() -> int:
         preview = seam_preview(result, seams, args.seam_height)
         preview_output = save_image(preview, args.seam_preview)
         print(preview_output)
+    if args.command == "stitch-vertical" and args.seam_report:
+        report = {
+            "mode": args.mode,
+            "project": args.project,
+            "images": args.images,
+            "output": str(output),
+            "seams": seams,
+        }
+        report_output = write_json(args.seam_report, report)
+        print(report_output)
     if args.command == "custom-grid" and args.layout_report:
         report_path = Path(args.layout_report)
         report_path.parent.mkdir(parents=True, exist_ok=True)
