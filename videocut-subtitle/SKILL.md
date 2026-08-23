@@ -2,7 +2,7 @@
 name: videocut-subtitle
 description: 字幕生成与烧录。转录→词典纠错→审核→烧录。触发词：加字幕、生成字幕、字幕
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   alias: "videocut:字幕"
 ---
 
@@ -42,6 +42,38 @@ whisper video.mp4 --model medium --language zh --output_format json
 | `large-v3` | 高精度，较慢 |
 
 输出 JSON 包含逐词时间戳，用于后续 SRT 生成。
+
+### 可选：Atlas Cloud 转录
+
+默认继续使用本地 Whisper，中文转录也必须保持该流程。只有用户明确选择 Atlas Cloud，且音频语言在 `xai/stt-v1` 当前支持列表内时，才使用仓库内置的 `scripts/atlas_transcribe.py`。输出保留 `words[].start` 和 `words[].end`，可继续用于后续文本审核和 SRT 时间戳匹配。
+
+先预览请求，不访问网络，也不会产生费用：
+
+```bash
+python3 videocut-subtitle/scripts/atlas_transcribe.py \
+  --input video.mp4 \
+  --language en \
+  --keyterm Claude \
+  --output transcript.json
+```
+
+用户确认参数后显式执行：
+
+```bash
+python3 videocut-subtitle/scripts/atlas_transcribe.py \
+  --input video.mp4 \
+  --language en \
+  --keyterm Claude \
+  --output transcript.json \
+  --execute
+```
+
+- 从环境变量 `ATLASCLOUD_API_KEY` 读取认证信息
+- `--language` 仅接受模型 schema 当前列出的语言代码；不支持中文，中文必须继续使用 Whisper
+- 本地文件最大 25 MiB；更大的媒体文件使用公开 HTTPS 地址配合 `--audio-url`
+- 可重复传入 `--keyterm`，将 `词典.txt` 中的专有词作为识别提示
+- 付费生成 POST 只提交一次，失败时不自动重试；仅结果 GET 使用有界退避
+- 默认不会覆盖已有输出，且输出路径必须位于当前工作目录内
 
 ---
 
